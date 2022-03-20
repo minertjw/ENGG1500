@@ -66,4 +66,3 @@ class Motor(object):
         else:
             self.IN1.on()
             self.IN2.off()
-#this comment totally breaks the entire code
