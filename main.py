@@ -93,5 +93,3 @@ while True:
         setServoAngle(pos)  # Set servo to desired angle
         time.sleep(0.01)  # Wait 50 ms to reach angle
 #jkfdbkgjh
-#jfkgn
-#knfghflg
