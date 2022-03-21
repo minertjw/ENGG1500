@@ -92,4 +92,3 @@ while True:
     for pos in range(180, 0, -1):
         setServoAngle(pos)  # Set servo to desired angle
         time.sleep(0.01)  # Wait 50 ms to reach angle
-#haha this comment totally breaks the entirety of the code I'm not telling you how
