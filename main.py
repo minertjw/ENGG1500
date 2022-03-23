@@ -27,7 +27,7 @@ pwm = PWM(Pin(15))
 pwm.freq(50)
 
 count = 0
-
+#beep
 #move forward into hits black object underneath
 while True:
     print(line_sensor.value())
