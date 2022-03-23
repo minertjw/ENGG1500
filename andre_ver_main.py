@@ -10,7 +10,8 @@ def setServoAngle(angle):
     # ...range
     pwm.duty_u16(position)  # set duty cycle
 
-#initilise light sensor
+
+# initilise light sensor
 line_sensor = Pin(26, Pin.IN)
 
 # initialise motors
@@ -28,7 +29,7 @@ pwm.freq(50)
 
 count = 0
 
-#move forward into hits black object underneath
+# move forward into hits black object underneath
 while True:
     print(line_sensor.value())
 
@@ -52,16 +53,15 @@ while True:
         motor_left.duty(0)
         break
 
-#spin 180
+# spin 180
 
 motor_left.set_backwards()
 motor_right.set_forwards()
 motor_right.duty(35)
 motor_left.duty(35)
-time.sleep(5)
+time.sleep(2)
 motor_right.duty(0)
 motor_left.duty(0)
-
 
 # These statements make the code more readable.
 # Instead of a pin number 2 or 3 we can now write "TRIG" or "ECHO"
@@ -85,12 +85,27 @@ while True:
 
 # servo loop code
 while True:
-    # Sweep between 0 and 180 degrees
+
+    # Sweep between 0 to 90 degrees (right side)
     for pos in range(0, 90, 1):
         setServoAngle(pos)  # Set servo to desired angle
-        time.sleep(0.01)  # Wait 50 ms to reach angle
+        dist = ultrasonic_sensor.distance_mm()
+        if dist > 300:
+            motor_left.set_forwards()
+            motor_right.set_forwards()
+            motor_left.duty(0)
+            motor_right.duty(50)
+            time.sleep(2)
+            break
 
-    for pos in range(180, 0, -1):
+        # Sweep between 90 to 180 degrees (left side)
+    for pos in range(0, 90, 1):
         setServoAngle(pos)  # Set servo to desired angle
-        time.sleep(0.01)  # Wait 50 ms to reach angle
-#this comment is designed to shut down your computer once you read it
+        if dist > 100:
+            motor_left.set_forwards()
+            motor_right.set_forwards()
+            motor_left.duty(50)
+            motor_right.duty(0)
+            time.sleep(2)
+            break
+
