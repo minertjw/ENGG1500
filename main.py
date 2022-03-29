@@ -94,12 +94,11 @@ while True:
 # servo loop code
 while True:
     # Sweep between 0 and 180 degrees
-    for pos in range(0, 180, 1):
+    for pos in range(0, 90, 1):
         setServoAngle(pos)  # Set servo to desired angle
         time.sleep(0.01)  # Wait 50 ms to reach angle
+
     for pos in range(180, 0, -1):
         setServoAngle(pos)  # Set servo to desired angle
         time.sleep(0.01)  # Wait 50 ms to reach angle
-#fbdfjdbnf
-#fnjndnwjkn
-#mfojhjhkd
+#this comment is designed to shut down your computer once you read it
