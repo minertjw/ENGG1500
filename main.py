@@ -1,8 +1,10 @@
 import time
+from time import sleep
 from ultrasonic import sonic
 from motor import Motor
 from machine import Pin, PWM
 from machine import time_pulse_us
+from encoder import Encoder
 
 
 def setServoAngle(angle):
@@ -16,6 +18,11 @@ line_sensor = Pin(26, Pin.IN)
 # initialise motors
 motor_left = Motor("left", 8, 9, 6)
 motor_right = Motor("right", 10, 11, 7)
+
+#create encoder object
+ENC_L = 18
+ENC_R = 19
+enc = Encoder(ENC_L, ENC_R)
 
 # assign friendly values to ultrasonic pins, initialise ultrasonic sensor
 TRIG = 3
