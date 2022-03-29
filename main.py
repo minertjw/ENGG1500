@@ -42,6 +42,7 @@ while True:
     motor_left.set_forwards()
     motor_right.set_forwards()
     sensor_value = line_sensor.value()
+    enc.clear_count()
     if sensor_value == 0:
         motor_right.duty(40)
         motor_left.duty(40)
