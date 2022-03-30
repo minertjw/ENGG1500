@@ -1,5 +1,4 @@
 import time
-from time import sleep
 from ultrasonic import sonic
 from motor import Motor
 from machine import Pin, PWM
