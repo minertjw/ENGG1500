@@ -19,7 +19,7 @@ motor_left = Motor("left", 8, 9, 6)
 motor_right = Motor("right", 10, 11, 7)
 
 #create encoder object
-ENC_L = 18
+ENC_L = 18 #pin2y34ry8
 ENC_R = 19
 enc = Encoder(ENC_L, ENC_R)
 
