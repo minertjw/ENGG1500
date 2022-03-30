@@ -43,8 +43,26 @@ while True:
     sensor_value = line_sensor.value()
     enc.clear_count()
     if sensor_value == 0:
+        #Drive until average counts exceed a value
+        while (enc.get_left() + enc.get_right())/2 < 50:
         motor_right.duty(40)
         motor_left.duty(40)
+
+        #Stop the motors for 1s
+        motor_left.duty(0)
+        motor_right.duty(0)
+        sleep(1)
+
+        #Clear encoder count and set direction pins for backwards
+        enc.clear_count()
+        motor_left.set_backwards()
+        motor_right.set_backwards()
+
+        #Drive until average counts exceed a value
+        while (enc.get_left() + enc.get_right())/2 < 50:
+            motor_left.duty(40)
+            motor_right.duty(40)
+        sleep(1)
     else:
         motor_right.duty(0)
         motor_left.duty(0)
