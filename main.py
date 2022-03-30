@@ -28,22 +28,24 @@ def setServoAngle(angle): # Changes the angle the front mounted servo is pointin
 def forward(speed): # Moves the robot forward at a selected speed
     motor_left.set_forwards()
     motor_right.set_forwards()
-    motor_right.duty(speed)
+    motor_left.duty(speed)
     motor_right.duty(speed)
 
 def backwards(speed): # Moves the robot backward at a selected speed
     motor_left.set_backwards()
     motor_right.set_backwards()
-    motor_right.duty(speed)
+    motor_left.duty(speed)
     motor_right.duty(speed)
 
 def stop(): # Stops the robot moving
-    motor_right.duty(0)
+    motor_left.duty(0)
     motor_right.duty(0)
 
 def stopDist(distance): # Stops the robot a specified distance in mm from an obstacle
     while True:
         dist = ultrasonic_sensor.distance_mm()
+        if floorCheck() == 1:
+            stop()
         if dist < distance:
             stop()
             break
@@ -72,12 +74,12 @@ def spinCounter(angle): # Spins the robot Counter-Clockwise by a specified angle
 
 # Theoretical solution to the competency task
 while True:
-    forward(40)
+    forward(50)
     stopDist(60)
     if floorCheck() == 1:
         break
     else:
-        backwards(40)
+        backwards(50)
         time.sleep(1)
         spinClock(90)
 
@@ -120,4 +122,4 @@ while True:
     for pos in range(180, 0, -1):
         setServoAngle(pos)  # Set servo to desired angle
         time.sleep(0.01)  # Wait 10 ms to reach angle
-''''''
+'''
