@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="MicroPython" name="MicroPython">
       <configuration>
-        <device name="Pyboard" />
+        <device name="Micro:bit" />
       </configuration>
     </facet>
   </component>

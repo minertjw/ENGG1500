@@ -3,119 +3,121 @@ from ultrasonic import sonic
 from motor import Motor
 from machine import Pin, PWM
 from machine import time_pulse_us
-from encoder import Encoder
 
+# Initialisation Statements:
 
-def setServoAngle(angle):
-    position = int(8000 * (angle / 180) + 1000)  # Convert angle into [1000, 9000]
-    # ...range
-    pwm.duty_u16(position)  # set duty cycle
-
-#initilise light sensor
+# Line Sensor
 line_sensor = Pin(26, Pin.IN)
 
-# initialise motors
+# Motors
 motor_left = Motor("left", 8, 9, 6)
 motor_right = Motor("right", 10, 11, 7)
 
-#create encoder object
-ENC_L = 18 #pin2y34ry8
-ENC_R = 19
-enc = Encoder(ENC_L, ENC_R)
+# Ultrasonic Sensor
+ultrasonic_sensor = sonic(3, 2)
 
-# assign friendly values to ultrasonic pins, initialise ultrasonic sensor
-TRIG = 3
-ECHO = 2
-ultrasonic_sensor = sonic(TRIG, ECHO)
-
-# initialise servo
+# Servo
 pwm = PWM(Pin(15))
 pwm.freq(50)
 
-count = 0
-#beep
-#move forward into hits black object underneath
-while True:
-    print(line_sensor.value())
+def setServoAngle(angle): # Changes the angle the front mounted servo is pointing
+    position = int(8000 * (angle / 180) + 1000)  # Convert angle into [1000, 9000]
+    # ...range
+    pwm.duty_u16(position)  # set duty cycle #
 
+def forward(speed): # Moves the robot forward at a selected speed
     motor_left.set_forwards()
     motor_right.set_forwards()
-    sensor_value = line_sensor.value()
-    enc.clear_count()
-    if sensor_value == 0:
-        #Drive until average counts exceed a value
-        while (enc.get_left() + enc.get_right())/2 < 50:
-            motor_right.duty(40)
-            motor_left.duty(40)
+    motor_right.duty(speed)
+    motor_right.duty(speed)
 
-            #Stop the motors for 1s
-            motor_left.duty(0)
-            motor_right.duty(0)
-            time.sleep(1)
+def backwards(speed): # Moves the robot backward at a selected speed
+    motor_left.set_backwards()
+    motor_right.set_backwards()
+    motor_right.duty(speed)
+    motor_right.duty(speed)
 
-            #Clear encoder count and set direction pins for backwards
-            enc.clear_count()
-            motor_left.set_backwards()
-            motor_right.set_backwards()
+def stop(): # Stops the robot moving
+    motor_right.duty(0)
+    motor_right.duty(0)
 
-        #Drive until average counts exceed a value
-        while (enc.get_left() + enc.get_right())/2 < 50:
-            motor_left.duty(40)
-            motor_right.duty(40)
-            time.sleep(1)
+def stopDist(distance): # Stops the robot a specified distance in mm from an obstacle
+    while True:
+        dist = ultrasonic_sensor.distance_mm()
+        if dist < distance:
+            stop()
+            break
+
+def floorCheck(): # Checks the colour of the floor
+    return line_sensor.value()
+
+def spinClock(angle): # Spins the robot Clockwise by a specified angle
+    motor_left.set_forwards()
+    motor_right.set_backwards()
+    motor_right.duty(40)
+    motor_left.duty(40)
+    time.sleep(angle/100)
+    stop()
+
+def spinCounter(angle): # Spins the robot Counter-Clockwise by a specified angle
+    motor_left.set_backwards()
+    motor_right.set_forwards()
+    motor_right.duty(40)
+    motor_left.duty(40)
+    time.sleep(angle/100)
+    stop()
+
+
+# Operational Code
+
+# Theoretical solution to the competency task
+while True:
+    forward(40)
+    stopDist(60)
+    if floorCheck() == 1:
+        break
     else:
-        motor_right.duty(0)
-        motor_left.duty(0)
+        backwards(40)
+        time.sleep(1)
+        spinClock(90)
+
+
+'''
+# Move the robot forward until Line Sensor detects black
+count = 0
+while True:
+    print(line_sensor.value())
+    sensor_value = line_sensor.value()
+    if sensor_value == 0:
+        forward(40)
+    else:
+        stop()
         count += 1
     if count > 100:
-        motor_left.set_backwards()
-        motor_right.set_backwards()
-        motor_right.duty(40)
-        motor_left.duty(40)
+        backwards(40)
         time.sleep(2)
-        motor_right.duty(0)
-        motor_left.duty(0)
+        stop()
         break
 
-#spin 180
+spinClock(180)
 
-motor_left.set_backwards()
-motor_right.set_forwards()
-motor_right.duty(35)
-motor_left.duty(35)
-time.sleep(5)
-motor_right.duty(0)
-motor_left.duty(0)
-
-
-# These statements make the code more readable.
-# Instead of a pin number 2 or 3 we can now write "TRIG" or "ECHO"
-
-# Ultrasonic sensor move forward and stop at 60mm
+# Move forward until the Ultrasonic Sensor is less than 60mm from a wall
 while True:
     dist = ultrasonic_sensor.distance_mm()
     if dist < 60:
-        motor_left.duty(0)
-        motor_right.duty(0)
+        stop()
         break
     else:
-        motor_left.set_forwards()
-        motor_right.set_forwards()
-        motor_left.duty(40)
-        motor_right.duty(40)
-        # The code within this if-statement only gets executed
-        # if the distance measured is less than 200 mm
+        forward(40)
         print("Distance = {:6.2f} [mm]".format(dist))
         time.sleep(0.1)
 
-# servo loop code
+# Sweep servo between 0 and 180 degrees, in increments of 1 degree
 while True:
-    # Sweep between 0 and 180 degrees
-    for pos in range(0, 90, 1):
+    for pos in range(0, 180, 1):
         setServoAngle(pos)  # Set servo to desired angle
-        time.sleep(0.01)  # Wait 50 ms to reach angle
-
+        time.sleep(0.01)  # Wait 10 ms to reach angle
     for pos in range(180, 0, -1):
         setServoAngle(pos)  # Set servo to desired angle
-        time.sleep(0.01)  # Wait 50 ms to reach angle
-#this comment is designed to shut down your computer once you read it
+        time.sleep(0.01)  # Wait 10 ms to reach angle
+''''''
