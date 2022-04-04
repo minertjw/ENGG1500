@@ -3,6 +3,7 @@ from ultrasonic import sonic
 from motor import Motor
 from machine import Pin, PWM
 from machine import time_pulse_us
+from encoder import Encoder
 
 
 def setServoAngle(angle):
@@ -17,6 +18,11 @@ line_sensor = Pin(26, Pin.IN)
 motor_left = Motor("left", 8, 9, 6)
 motor_right = Motor("right", 10, 11, 7)
 
+#create encoder object
+ENC_L = 18 #pin2y34ry8
+ENC_R = 19
+enc = Encoder(ENC_L, ENC_R)
+
 # assign friendly values to ultrasonic pins, initialise ultrasonic sensor
 TRIG = 3
 ECHO = 2
@@ -27,7 +33,7 @@ pwm = PWM(Pin(15))
 pwm.freq(50)
 
 count = 0
-
+#beep
 #move forward into hits black object underneath
 while True:
     print(line_sensor.value())
@@ -35,9 +41,28 @@ while True:
     motor_left.set_forwards()
     motor_right.set_forwards()
     sensor_value = line_sensor.value()
+    enc.clear_count()
     if sensor_value == 0:
-        motor_right.duty(40)
-        motor_left.duty(40)
+        #Drive until average counts exceed a value
+        while (enc.get_left() + enc.get_right())/2 < 50:
+            motor_right.duty(40)
+            motor_left.duty(40)
+
+            #Stop the motors for 1s
+            motor_left.duty(0)
+            motor_right.duty(0)
+            time.sleep(1)
+
+            #Clear encoder count and set direction pins for backwards
+            enc.clear_count()
+            motor_left.set_backwards()
+            motor_right.set_backwards()
+
+        #Drive until average counts exceed a value
+        while (enc.get_left() + enc.get_right())/2 < 50:
+            motor_left.duty(40)
+            motor_right.duty(40)
+            time.sleep(1)
     else:
         motor_right.duty(0)
         motor_left.duty(0)
