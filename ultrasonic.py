@@ -2,7 +2,6 @@ import machine
 from machine import Pin
 import time
 
-
 class sonic:
     """
     A ``sonic`` object is used to control a HCSR04 ultrasonic sensor.
