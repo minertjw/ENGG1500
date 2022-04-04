@@ -47,8 +47,16 @@ def backward(speed=50):  # Moves the robot backward at a selected speed
     motor_right.duty(speed)
 
 
-def distance(dist=50):  # Used in tandem with forward and backward functions, specifies a distance to travel in cm
-    while (enc.get_left() + enc.get_right())/2 < (dist / 20):
+def turn(speed=50, left=True, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
+    forward(speed)
+    if left:
+        motor_left.duty(((100-intensity)/100)*speed)
+    else:
+        motor_right.duty(((100-intensity)/100)*speed)
+
+
+def distance(dist=20):  # Used in tandem with forward and backward functions, specifies a distance to travel in cm
+    while (enc.get_left() + enc.get_right())/2 < dist:
         {
             print("Oh yeah, how about this for statement has no effect, stupid python")
             # OLED screen can count down distance maybe that would be cool
@@ -61,48 +69,92 @@ def stop():  # Stops the robot moving
     motor_right.duty(0)
 
 
-def stopDist(dist=60):  # Stops the robot a specified distance in mm from an obstacle
+def stopDist(dist=60, reason="nothing"):  # Stops the robot a specified distance in mm from an obstacle
     while True:
         measure = ultrasonic_sensor.distance_mm()
-        if floorCheck() == 1:
-            stop()
+        if reason == "floor":
+            if floorCheck() == 1:
+                stop()
+                break
         if measure < dist:
             stop()
             break
+
+
+def distCheck():  # Checks the distance between the ultrasonic sensor and what it is pointing at
+    return ultrasonic_sensor.distance_mm()
 
 
 def floorCheck():  # Checks the colour of the floor
     return line_sensor.value()
 
 
-def spinClock(angle=120):  # Spins the robot Clockwise by a specified angle
-    motor_left.set_forwards()
-    motor_right.set_backwards()
-    motor_right.duty(40)
-    motor_left.duty(40)
+def spin(angle=120, direction="clock", speed=40):  # Spins the robot, can select angle, direction and speed
+    if direction == "clock":
+        motor_left.set_forwards()
+        motor_right.set_backwards()
+    else:
+        motor_left.set_backwards()
+        motor_right.set_forwards()
+    motor_right.duty(speed)
+    motor_left.duty(speed)
     time.sleep(angle / 100)
     stop()
 
 
-def spinCounter(angle=120):  # Spins the robot Counter-Clockwise by a specified angle
-    motor_left.set_backwards()
-    motor_right.set_forwards()
-    motor_right.duty(40)
-    motor_left.duty(40)
-    time.sleep(angle / 100)
-    stop()
+# Hug Wall Operational Code:
 
+# Moves forward until line is no longer detected
+while True:
+    if floorCheck() == 0:
+        forward(50)
+    else:
+        stop()
+        break
 
-# Main Operational Code:
+# Captures distance to wall on either side of the robot
+setServoAngle(0)
+distLeft = distCheck()
+setServoAngle(180)
+distRight = distCheck()
+
+# Checks which distance was smaller, hugLeft variable is passed to the turn function to determine which direction to turn
+if distRight > distLeft > 150:  # This number will need to be playtested
+    distWall = distLeft
+    hugLeft = True
+else:
+    distWall = distRight
+    hugLeft = False
+
+# Moves forward with slight turning adjustments every 0.2 seconds, should stop if wall distance suddenly doubles (ie, the wall has ended)
 while True:
     forward(50)
-    stopDist(60)
-    if floorCheck() == 1:
-        break
+    time.sleep(0.1)
+    if distWall > distCheck():  # Checks the stored distance with the current distance to compare if it has grown or shrunk
+        turn(50, not hugLeft, 25)  # Turn right at speed 50, with turning intensity of 25%
+        time.sleep(0.1)
     else:
+        turn(50, hugLeft, 25)
+        time.sleep(0.1)
+    if distCheck() > 2*distWall:  # Checks if the distance is suddenly more than double the stored value, which would mean that the wall has ended
+        stop()
+        break
+
+
+
+
+
+
+'''# Competency Task Operational Code:
+while True:
+    forward(50)
+    stopDist(60, "floor")
+    if floorCheck() != 1:
         backward(50)
         time.sleep(1)
-        spinClock(90)
+        spin(90, "clock")
+    else:
+        break'''
 
 '''# Sweep servo between 0 and 180 degrees, in increments of 1 degree
 while True:
