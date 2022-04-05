@@ -122,9 +122,11 @@ distRight = distCheck()
 if distRight > distLeft > 150:  # This number will need to be playtested
     distWall = distLeft
     hugLeft = True
+    setServoAngle(0)
 else:
     distWall = distRight
     hugLeft = False
+    setServoAngle(180)
 
 # Moves forward with slight turning adjustments every 0.2 seconds, should stop if wall distance suddenly doubles (ie, the wall has ended)
 while True:
