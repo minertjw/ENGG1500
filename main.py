@@ -4,6 +4,8 @@ from motor import Motor
 from machine import Pin, PWM
 from machine import time_pulse_us
 from encoder import Encoder
+from machine import Pin, I2C
+from ssd1306 import SSD1306_I2C
 
 # Initialisation Statements:
 
@@ -26,6 +28,10 @@ ENC_L = 18  # pin2y34ry8
 ENC_R = 19
 enc = Encoder(ENC_L, ENC_R)
 
+#OLED
+i2c = I2C(0, sda=Pin(12), scl=Pin(13))
+oled = SSD1306_I2C(128, 64, i2c)
+
 
 def setServoAngle(angle=90):  # Changes the angle the front mounted servo is pointing
     position = int(8000 * (angle / 180) + 1000)  # Convert angle into [1000, 9000]
@@ -34,6 +40,8 @@ def setServoAngle(angle=90):  # Changes the angle the front mounted servo is poi
 
 
 def forward(speed=50):  # Moves the robot forward at a selected speed
+    oled.text("Moving Forwards at 50% Speed", 0,0)
+    oled.show()
     motor_left.set_forwards()
     motor_right.set_forwards()
     motor_left.duty(speed)
@@ -41,6 +49,8 @@ def forward(speed=50):  # Moves the robot forward at a selected speed
 
 
 def backward(speed=50):  # Moves the robot backward at a selected speed
+    oled.text("Moving Backwards at 50% Speed", 0,0)
+    oled.show()
     motor_left.set_backwards()
     motor_right.set_backwards()
     motor_left.duty(speed)
@@ -65,6 +75,8 @@ def distance(dist=20):  # Used in tandem with forward and backward functions, sp
 
 
 def stop():  # Stops the robot moving
+    oled.text("Stopped", 0, 0)
+    oled.show()
     motor_left.duty(0)
     motor_right.duty(0)
 
@@ -91,9 +103,13 @@ def floorCheck():  # Checks the colour of the floor
 
 def spin(angle=120, direction="clock", speed=40):  # Spins the robot, can select angle, direction and speed
     if direction == "clock":
+        oled.text("Spinning Clockwise at 40% Speed", 0, 0)
+        oled.show()
         motor_left.set_forwards()
         motor_right.set_backwards()
     else:
+        oled.text("Spinning AntiClockwise at 40% Speed", 0, 0)
+        oled.show()
         motor_left.set_backwards()
         motor_right.set_forwards()
     motor_right.duty(speed)
