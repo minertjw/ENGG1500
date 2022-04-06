@@ -7,14 +7,14 @@ from encoder import Encoder
 
 # Initialisation Statements:
 
-# Line Sensors
+# Line Sensor
 line_sensorL = Pin(28, Pin.IN)
 line_sensorM = Pin(26, Pin.IN)
 line_sensorR = Pin(27, Pin.IN)
 
 # Motors
-motor_left = Motor("left", "8", "9", 6)
-motor_right = Motor("right", "10", "11", 7)
+motor_left = Motor("left", 8, 9, 6)
+motor_right = Motor("right", 10, 11, 7)
 
 # Ultrasonic Sensor
 ultrasonic_sensor = sonic(3, 2)
@@ -87,13 +87,8 @@ def distCheck():  # Checks the distance between the ultrasonic sensor and what i
     return ultrasonic_sensor.distance_mm()
 
 
-def floorCheck(sensor="middle"):  # Checks the colour of the floor. Line sensor being used can be specified using multiple identifiers
-    if sensor == "left" or sensor == "l" or sensor == "L":
-        return line_sensorL.value()
-    elif sensor == "right" or sensor == "r" or sensor == "R":
-        return line_sensorR.value()
-    else:
-        return line_sensorM.value()
+def floorCheck():  # Checks the colour of the floor
+    return line_sensorM.value()
 
 
 def spin(angle=120, direction="clock", speed=40):  # Spins the robot, can select angle, direction and speed
@@ -108,16 +103,33 @@ def spin(angle=120, direction="clock", speed=40):  # Spins the robot, can select
     time.sleep(angle / 100)
     stop()
 
-# Curved Line Follow Operational Code:
 while True:
-    forward(40)
-    if floorCheck("R") == 1:
-        while floorCheck() == 0:
-            turn(40, False, 50)
-        forward(40)
-    if floorCheck("L") == 1:
-        while floorCheck() == 0:
-            turn(40, True, 50)
-        forward(40)
+    print(line_sensorM.value())
+    time.sleep(0.5)
+    print(line_sensorR.value())
+    time.sleep(0.5)
+    print(line_sensorL.value())
+    time.sleep(0.5)
+    print("")
+    time.sleep(0.5)
+    time.sleep(0.5)
 
+'''# Competency Task Operational Code:
+while True:
+    forward(50)
+    stopDist(60, "floor")
+    if floorCheck() != 1:
+        backward(50)
+        time.sleep(1)
+        spin(90, "clock")
+    else:
+        break'''
 
+'''# Sweep servo between 0 and 180 degrees, in increments of 1 degree
+while True:
+    for pos in range(0, 180, 1):
+        setServoAngle(pos)  # Set servo to desired angle
+        time.sleep(0.01)  # Wait 10 ms to reach angle
+    for pos in range(180, 0, -1):
+        setServoAngle(pos)  # Set servo to desired angle
+        time.sleep(0.01)  # Wait 10 ms to reach angle'''
