@@ -1,12 +1,9 @@
 import time
-from ultrasonic import sonic
+from machine import Pin, PWM, I2C, time_pulse_us
 from motor import Motor
-from machine import Pin, PWM
-from machine import time_pulse_us
+from ultrasonic import sonic
 from encoder import Encoder
-from machine import Pin, I2C
 from ssd1306 import SSD1306_I2C
-
 
 # Initialisation Statements:
 
@@ -38,20 +35,13 @@ i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
 
 
-def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing
-    position = int(8000 * (angle / 180) + 1000)  # Convert angle into [1000, 9000]
-    # ...range
+def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
+    position = int(8000*(angle/180)+1000)  # Convert angle into [1000, 9000]
     pwm.duty_u16(position)  # set duty cycle #
-
-
 def lookForward():
     setServoAngle(100)
-
-
 def lookLeft():
     setServoAngle(167)
-
-
 def lookRight():
     setServoAngle(25)
 
@@ -61,54 +51,37 @@ def forward(speed=50):  # Moves the robot forward at a selected speed
     motor_right.set_forwards()
     motor_left.duty(int(speed))
     motor_right.duty(int(speed))
-
-
 def backward(speed=50):  # Moves the robot backward at a selected speed
     motor_left.set_backwards()
     motor_right.set_backwards()
     motor_left.duty(speed)
     motor_right.duty(speed)
-
-
-def turn(speed=50, left=True, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
+def turnLeft(speed=50, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
     forward(speed)
-    if left:
-        motor_left.duty(((100-intensity)/100)*speed)
-    else:
-        motor_right.duty(((100-intensity)/100)*speed)
-
-
-def distance(dist=20):  # Used in tandem with forward and backward functions, specifies a distance to travel in cm
-    while (enc.get_left() + enc.get_right())/2 < dist:
-        {
-            print("Oh yeah, how about this for statement has no effect, stupid python")
-            # OLED screen can count down distance maybe that would be cool
-        }
-    enc.clear_count()
+    motor_left.duty(((100-intensity)/100)*speed)
+def turnRight(speed=50, intensity=25):
+    forward(speed)
+    motor_right.duty(((100 - intensity) / 100) * speed)
 
 
 def stop():  # Stops the robot moving
     motor_left.duty(0)
     motor_right.duty(0)
-
-
-def stopDist(dist=60, reason="nothing"):  # Stops the robot a specified distance in mm from an obstacle
-    while True:
-        measure = ultrasonic_sensor.distance_mm()
-        if reason == "floor":
-            if floorCheck() == 1:
-                stop()
-                break
-        if measure < dist:
-            stop()
-            break
+    oled.text("Stopped",0,0)
+    oled.show()
+def stopDist(dist=60): # Stops the robot a specified distance in mm from an obstacle
+    forward()
+    while dist < ultrasonic_sensor.distance_mm():
+        oled.text("Stopping at", 0, 0)
+        oled.text(str(dist)+"cm", 0, 8)
+        oled.show()
+        oled.fill(0)
+    clearScreen()
+    stop()
 
 
 def distCheck():  # Checks the distance between the ultrasonic sensor and what it is pointing at
-    measurement = ultrasonic_sensor.distance_mm()
-    return measurement
-
-
+    return ultrasonic_sensor.distance_mm()
 def floorCheck():  # Checks the colour of the floor
     return line_sensorM.value()
 
@@ -128,19 +101,22 @@ def spin(angle=120, direction="clock"):  # Spins the robot, can select angle, di
 
 def tickRight():
     return enc.get_right()
-
-
 def tickLeft():
     return enc.get_left()
 
 
 def encOnScreen():
-    oled.text(str(enc.get_left()), 0, 0)
-    oled.text(str(enc.get_right()), 32, 0)
+    oled.text(str(enc.get_left()), 10, 0)
+    oled.text(str(enc.get_right()), 42, 0)
     oled.show()
     oled.fill(0)
+def clearScreen():
+    oled.fill(0)
+    oled.show()
 
 # Operational Code:
+
+stopDist(1000)
 
 '''setServoAngle()
 oled.text("A long time ago", 0, 16)
