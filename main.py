@@ -156,8 +156,6 @@ for i in range(64,-10,-1):
     oled.show()
     time.sleep(0.03)
     oled.fill(0)'''
-setServoAngle()
-
 
 '''forward()
 while True:
@@ -170,19 +168,4 @@ while True:
         encOnScreen()
     forward()
     encOnScreen()'''
-
-
-'''oled.text("A long time ago", 0, 16)
-oled.text(" in a galaxy far ", 0, 24)
-oled.text("far away...", 0, 32)
-oled.show()
-time.sleep(5)
-oled.fill(0)
-oled.show()
-time.sleep(3)
-for i in range(64,-10,-1):
-    oled.text("STAR WARS", 25, i)
-    oled.show()
-    time.sleep(0.03)
-    oled.fill(0)'''
 
