@@ -82,8 +82,13 @@ def stopDist(dist=60): # Stops the robot a specified distance in mm from an obst
 
 def distCheck():  # Checks the distance between the ultrasonic sensor and what it is pointing at
     return ultrasonic_sensor.distance_mm()
-def floorCheck():  # Checks the colour of the floor
-    return line_sensorM.value()
+def floorCheck(pick="M"):  # Checks the colour of the floor
+    if pick=="R":
+        return line_sensorR.value()
+    elif pick=="L":
+        return line_sensorL.value()
+    else:
+        return line_sensorM.value()
 
 
 def spin(angle=120, direction="clock"):  # Spins the robot, can select angle, direction and speed
@@ -116,7 +121,46 @@ def clearScreen():
 
 # Operational Code:
 
-stopDist(1000)
+'''stopDist()
+time.sleep(2)
+while True:
+    encOnScreen()
+    setServoAngle(100+enc.get_right()-enc.get_left())
+    if False:
+        break'''
+
+while True:
+    forward(40)                     # this is just curved line follow
+    if floorCheck("R") == 1:        #
+        while floorCheck() == 0:    #
+            turnRight(40)           #
+        forward(40)                 #
+    if floorCheck("L") == 1:        #
+        while floorCheck() == 0:    #
+            turnLeft(40)            #
+        forward(40)                 #
+    i = 0                           # original code starts here
+    while i <= 4:                   # i is so it only runs 4 time andd the moves on
+        if floorCheck("L") == 1 and floorCheck("R") == 1:  # i want it so it only runs when both floor check L&R are =1
+            while floorCheck() == 1:
+                turnLeft(40)
+            forward(40)
+        i += 1
+        if floorCheck("L") == 1:     #this is to exit roundabout
+            while floorCheck() == 1:
+                turnLeft(40)
+            forward(40)
+    if i > 4:                           # if it loops 4 time its gonna enter the roundabout to the right
+        if floorCheck("R") == 1 and floorCheck("L") == 1:
+            while floorCheck() == 1:
+                turnRight(40)
+            forward(40)
+        i += 1
+        if floorCheck("R") == 1:
+            while floorCheck() == 1:
+                turnRight(40)
+            forward(40)
+
 
 '''setServoAngle()
 oled.text("A long time ago", 0, 16)
