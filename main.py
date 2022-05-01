@@ -35,8 +35,9 @@ i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
 
 
-def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
-    position = int(8000*(angle/180)+1000)  # Convert angle into [1000, 9000]
+def setServoAngle(
+        angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
+    position = int(8000 * (angle / 180) + 1000)  # Convert angle into [1000, 9000]
     pwm.duty_u16(position)  # set duty cycle #
 def lookForward():
     setServoAngle(100)
@@ -49,16 +50,19 @@ def lookRight():
 def forward(speed=50):  # Moves the robot forward at a selected speed
     motor_left.set_forwards()
     motor_right.set_forwards()
-    motor_left.duty(int(speed))
+    motor_left.duty(int(speed*0.9))
     motor_right.duty(int(speed))
 def backward(speed=50):  # Moves the robot backward at a selected speed
     motor_left.set_backwards()
     motor_right.set_backwards()
-    motor_left.duty(speed)
-    motor_right.duty(speed)
-def turnLeft(speed=50, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
+    motor_left.duty(int(speed))
+    motor_right.duty(int(speed))
+
+
+def turnLeft(speed=50,
+             intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
     forward(speed)
-    motor_left.duty(((100-intensity)/100)*speed)
+    motor_left.duty(((100 - intensity) / 100) * speed)
 def turnRight(speed=50, intensity=25):
     forward(speed)
     motor_right.duty(((100 - intensity) / 100) * speed)
@@ -67,13 +71,13 @@ def turnRight(speed=50, intensity=25):
 def stop():  # Stops the robot moving
     motor_left.duty(0)
     motor_right.duty(0)
-    oled.text("Stopped",0,0)
+    oled.text("Stopped", 0, 32)
     oled.show()
-def stopDist(dist=60): # Stops the robot a specified distance in mm from an obstacle
+def stopDist(dist=60):  # Stops the robot a specified distance in mm from an obstacle
     forward()
     while dist < ultrasonic_sensor.distance_mm():
         oled.text("Stopping at", 0, 0)
-        oled.text(str(dist)+"cm", 0, 8)
+        oled.text(str(dist) + "cm", 0, 8)
         oled.show()
         oled.fill(0)
     clearScreen()
@@ -83,9 +87,9 @@ def stopDist(dist=60): # Stops the robot a specified distance in mm from an obst
 def distCheck():  # Checks the distance between the ultrasonic sensor and what it is pointing at
     return ultrasonic_sensor.distance_mm()
 def floorCheck(pick="M"):  # Checks the colour of the floor
-    if pick=="R":
+    if pick == "R":
         return line_sensorR.value()
-    elif pick=="L":
+    elif pick == "L":
         return line_sensorL.value()
     else:
         return line_sensorM.value()
@@ -95,11 +99,13 @@ def spin(angle=120, direction="clock"):  # Spins the robot, can select angle, di
     if direction == "clock":
         motor_left.set_forwards()
         motor_right.set_backwards()
+        motor_right.duty(70)
+        motor_left.duty(40)
     else:
         motor_left.set_backwards()
         motor_right.set_forwards()
-    motor_right.duty(50)
-    motor_left.duty(50)
+        motor_right.duty(40)
+        motor_left.duty(70)
     time.sleep(angle / 100)
     stop()
 
@@ -115,21 +121,36 @@ def encOnScreen():
     oled.text(str(enc.get_right()), 42, 0)
     oled.show()
     oled.fill(0)
+def lineOnScreen():
+    oled.text(str(floorCheck("R")), 10, 0)
+    oled.text(str(floorCheck()), 42, 0)
+    oled.text(str(floorCheck("L")), 74, 0)
+    oled.show()
+    oled.fill(0)
 def clearScreen():
     oled.fill(0)
     oled.show()
 
-# Operational Code:
 
-'''stopDist()
+# Line Follow Code:
 time.sleep(2)
 while True:
+    forward(45)
+    while floorCheck("L") == 1:
+        spin(10, "counter")
+    while floorCheck("R") == 1:
+        spin(10, "clock")
+
+
+# Rotate Servo with ratio of wheel rotation:
+'''while True:
     encOnScreen()
     setServoAngle(100+enc.get_right()-enc.get_left())
     if False:
         break'''
 
-while True:
+# Roundabout code
+'''while True:
     forward(40)                     # this is just curved line follow
     if floorCheck("R") == 1:        #
         while floorCheck() == 0:    #
@@ -159,9 +180,9 @@ while True:
         if floorCheck("R") == 1:
             while floorCheck() == 1:
                 turnRight(40)
-            forward(40)
+            forward(40)'''
 
-
+# Star Wars on screen
 '''setServoAngle()
 oled.text("A long time ago", 0, 16)
 oled.text(" in a galaxy far ", 0, 24)
@@ -176,16 +197,4 @@ for i in range(64,-10,-1):
     oled.show()
     time.sleep(0.03)
     oled.fill(0)'''
-
-'''forward()
-while True:
-    while tickRight() > tickLeft():
-        motor_right.duty(int(50*(tickLeft()/tickRight())))
-        encOnScreen()
-    forward()
-    while tickLeft() > tickRight():
-        motor_left.duty(int(50*0.8))
-        encOnScreen()
-    forward()
-    encOnScreen()'''
 
