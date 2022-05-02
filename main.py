@@ -146,6 +146,27 @@ def steerServo():
     while True:
         encOnScreen()
         setServoAngle(100+enc.get_right()-enc.get_left())
+def distract():
+    while True:
+        forward(45)
+        if floorCheck("L") == 1:
+            forward(45)
+            tickRight()
+            tickLeft()
+            if floorCheck() == 0:
+                backward(45)
+                tickRight()
+                tickLeft()
+                spin(10, "counter")
+        elif floorCheck("R") == 1:
+            forward(45)
+            tickRight()
+            tickLeft()
+            if floorCheck() == 0:
+                backward(45)
+                tickRight()
+                tickLeft()
+                spin(10, "clock")
 
 # Miscellaneous
 def starWars():
