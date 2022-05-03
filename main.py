@@ -167,6 +167,12 @@ def distract():
                 tickRight()
                 tickLeft()
                 spin(10, "clock")
+def deadend():
+    while True:
+        forward(45)
+        if distCheck() == <20:
+            stop()
+
 
 # Miscellaneous
 def starWars():
