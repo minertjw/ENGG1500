@@ -167,12 +167,22 @@ def distract():
                 tickRight()
                 tickLeft()
                 spin(10, "clock")
-def deadend():
+def deadEnd():
+    setServoAngle()
     while True:
         forward(45)
-        if distCheck() == <20:
+        while floorCheck("L") == 1:
+            spin(10, "counter")
+        while floorCheck("R") == 1:
+            spin(10, "clock")
+        if distCheck() < 70: # has to see the wall before it sees the line, tune distance
             stop()
-
+            break
+    while True:
+        forward(45)
+        if floorCheck("R") == 1:
+            spin(45, "clock")
+        lineFollow()
 
 # Miscellaneous
 def starWars():
