@@ -41,9 +41,9 @@ def setServoAngle(angle=100):  # Changes the angle the front mounted servo is po
 def lookForward():
     setServoAngle(100)
 def lookLeft():
-    setServoAngle(167)
+    setServoAngle(30)
 def lookRight():
-    setServoAngle(25)
+    setServoAngle(167)
 
 # Main Movement Controls
 def forward(speed=50):  # Moves the robot forward at a selected speed
@@ -60,10 +60,10 @@ def backward(speed=50):  # Moves the robot backward at a selected speed
 # Turning Controls (Kinda Useless Currently)
 def turnLeft(speed=50, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
     forward(speed)
-    motor_left.duty(((100 - intensity) / 100) * speed)
+    motor_left.duty(int(((100 - intensity) / 100)) * speed)
 def turnRight(speed=50, intensity=25):
     forward(speed)
-    motor_right.duty(((100 - intensity) / 100) * speed)
+    motor_right.duty(int(((100 - intensity) / 100)) * speed)
 
 # Stop Options
 def stop():  # Stops the robot moving
@@ -183,6 +183,25 @@ def deadEnd():
         if floorCheck("R") == 1:
             spin(45, "clock")
         lineFollow()
+def wallFollow():
+    count = 0
+    while True:
+        time.sleep(0.3)
+        stop()
+        oled.fill(0)
+        lookLeft()
+        distLeft = distCheck()
+        time.sleep(0.3)
+        lookRight()
+        distRight = distCheck()
+        oled.text(str(distLeft), 0, 0)
+        oled.text(str(distRight),0,16)
+        oled.text(str(count),0,48)
+        count+=1
+        if distRight > distLeft:
+            turnRight(60, ((distRight - distLeft)))
+        elif distLeft > distRight:
+            turnLeft(60, ((distLeft - distRight)))
 
 # Miscellaneous
 def starWars():
@@ -202,6 +221,7 @@ def starWars():
         oled.fill(0)
 
 # Operational Code:
+wallFollow()
 
 lineFollow()
 
