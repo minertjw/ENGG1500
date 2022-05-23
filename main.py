@@ -4,6 +4,7 @@ from motor import Motor
 from ultrasonic import sonic
 from encoder import Encoder
 from ssd1306 import SSD1306_I2C
+from APDS9960LITE import APDS9960LITE
 
 # Initialisation Statements:
 
@@ -33,6 +34,11 @@ enc = Encoder(ENC_L, ENC_R)
 # OLED Screen
 i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
+
+# Colour Sensor
+i2c = I2C(0, scl=Pin(20), sda=Pin(16))
+apds9960 = APDS9960LITE(i2c)
+
 
 # Servo Controls
 def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
@@ -73,8 +79,6 @@ def turnRight(speed=50, intensity=25):
 def stop():  # Stops the robot moving
     motor_left.duty(0)
     motor_right.duty(0)
-    oled.text("Stopped", 0, 32)
-    oled.show()
 def stopDist(dist=60):  # Stops the robot a specified distance in mm from an obstacle
     forward()
     while dist < ultrasonic_sensor.distance_mm():
@@ -258,7 +262,7 @@ def starWars():
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
 
 stateMachineTest()
-stop()
+'''stop()
 screen("alllines")
 time.sleep(500)
 check = False
@@ -301,4 +305,4 @@ while True:
             turnLeft(40,100)
         break
 
-lineFollow()
+lineFollow()'''
