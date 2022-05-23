@@ -140,7 +140,7 @@ def clearScreen():
     oled.fill(0)
     oled.show()
 
-# Locked Operational Code (Can't escape, runs forever)
+# Locked Operational Code
 def lineFollow():
     while True:
         forward(45)
@@ -148,19 +148,31 @@ def lineFollow():
             spin("counter")
         while floorCheck("R") == 1:
             spin("clock")
-def lineFollowCopy():
-    check = False
+def stateMachineTest():
     while True:
-        if check == True:
-            break
         forward(45)
-        while floorCheck("M") == 0:
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
+                if allFloorCheck():
+                    screen("Middle IR = 1")
+                    stop()
+                    time.sleep(999)
+                screen("Middle IR = 0")
+                stop()
+                time.sleep(999)
+            spin("counter")
+        while floorCheck("R") == 1:
             if floorCheck("L") == 1:
-                spin("counter")
-            elif floorCheck("R") == 1:
-                spin("clock")
-        if allFloorCheck():
-            check = True
+                if allFloorCheck():
+                    screen("Middle IR = 1")
+                    stop()
+                    time.sleep(999)
+                screen("Middle IR = 0")
+                stop()
+                time.sleep(999)
+            spin("clock")
+
+
 def steerServo():
     while True:
         encOnScreen()
@@ -244,7 +256,8 @@ def starWars():
 
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
-lineFollowCopy()
+
+stateMachineTest()
 stop()
 screen("alllines")
 time.sleep(500)
