@@ -144,6 +144,13 @@ def screen(string, x=0, y=0):
 def clearScreen():
     oled.fill(0)
     oled.show()
+def colourOnScreen():
+    oled.text(("Clear: ", str(apds9960.als.ambientLightLevel)),0,0)
+    oled.text(("Red: ", str(apds9960.als.redLightLevel)),0,16)
+    oled.text(("Green: ", str(apds9960.als.greenLightLevel)),0,32)
+    oled.text(("Blue: ", str(apds9960.als.blueLightLevel)),0,48)
+    oled.show()
+    oled.fill(0)
 
 # Locked Operational Code
 def lineFollow():
@@ -263,7 +270,10 @@ def starWars():
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
 
-stateMachineTest()
+while True:
+    colourOnScreen()
+
+#stateMachineTest()
 '''stop()
 screen("alllines")
 time.sleep(500)
