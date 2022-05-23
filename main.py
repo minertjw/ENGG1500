@@ -60,7 +60,11 @@ def backward(speed=50):  # Moves the robot backward at a selected speed
 # Turning Controls (Kinda Useless Currently)
 def turnLeft(speed=50, intensity=25):  # Imposes a ratio on the motors, determined by the direction and intensity out of 100
     forward(speed)
-    motor_left.duty(int(((100 - intensity) / 100)) * speed)
+    if intensity > 100:
+        motor_left.set_backwards()
+        motor_left.duty(int(((intensity-100))) * speed)
+    else:
+        motor_left.duty(int(((100 - intensity) / 100)) * speed)
 def turnRight(speed=50, intensity=25):
     forward(speed)
     motor_right.duty(int(((100 - intensity) / 100)) * speed)
@@ -98,7 +102,7 @@ def allFloorCheck():
         return False
 
 # Spin Controls
-def spin(angle=120, direction="clock"):  # Spins the robot, can select angle, direction and speed
+def spin(direction="clock"):  # Spins the robot, can select angle, direction and speed
     if direction == "clock":
         motor_left.set_forwards()
         motor_right.set_backwards()
@@ -109,8 +113,6 @@ def spin(angle=120, direction="clock"):  # Spins the robot, can select angle, di
         motor_right.set_forwards()
         motor_right.duty(40)
         motor_left.duty(70)
-    time.sleep(angle/100)
-    stop()
 
 # Easy Encoder Gets
 def tickRight():
@@ -130,6 +132,10 @@ def lineOnScreen():
     oled.text(str(floorCheck("L")), 74, 0)
     oled.show()
     oled.fill(0)
+def screen(string, x=0, y=0):
+    oled.text(str(string),x,y)
+    oled.show()
+    oled.fill(0)
 def clearScreen():
     oled.fill(0)
     oled.show()
@@ -139,9 +145,22 @@ def lineFollow():
     while True:
         forward(45)
         while floorCheck("L") == 1:
-            spin(10, "counter")
+            spin("counter")
         while floorCheck("R") == 1:
-            spin(10, "clock")
+            spin("clock")
+def lineFollowCopy():
+    check = False
+    while True:
+        if check == True:
+            break
+        forward(45)
+        while floorCheck("M") == 0:
+            if floorCheck("L") == 1:
+                spin("counter")
+            elif floorCheck("R") == 1:
+                spin("clock")
+        if allFloorCheck():
+            check = True
 def steerServo():
     while True:
         encOnScreen()
@@ -157,7 +176,8 @@ def distract():
                 backward(45)
                 tickRight()
                 tickLeft()
-                spin(10, "counter")
+                spin("counter")
+                time.sleep()
         elif floorCheck("R") == 1:
             forward(45)
             tickRight()
@@ -166,22 +186,22 @@ def distract():
                 backward(45)
                 tickRight()
                 tickLeft()
-                spin(10, "clock")
+                spin("clock")
 def deadEnd():
     setServoAngle()
     while True:
         forward(45)
         while floorCheck("L") == 1:
-            spin(10, "counter")
+            spin("counter")
         while floorCheck("R") == 1:
-            spin(10, "clock")
+            spin("clock")
         if distCheck() < 70: # has to see the wall before it sees the line, tune distance
             stop()
             break
     while True:
         forward(45)
         if floorCheck("R") == 1:
-            spin(45, "clock")
+            spin("clock")
         lineFollow()
 def wallFollow():
     count = 0
@@ -221,37 +241,44 @@ def starWars():
         oled.fill(0)
 
 # Operational Code:
-wallFollow()
-
-lineFollow()
 
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
-
+lineFollowCopy()
+stop()
+screen("alllines")
+time.sleep(500)
 check = False
 while True:
+    screen("forward")
     forward(45)
     if check:
         break
-
     while floorCheck("L") == 1:
-        spin(10, "counter")
-        if allFloorCheck():
+        screen("spin 10 counter")
+        spin("counter")
+        if floorCheck("R") == 1:
             while floorCheck("R") == 1:
+                screen("L turn left 45, 100")
                 turnLeft(45, 100)
             check = True
             break
 
     while floorCheck("R") == 1:
-        spin(10, "clock")
-        if allFloorCheck():
+        screen("spin 10 clock")
+        spin("clock")
+        if floorCheck("L") == 1:
             while floorCheck("R") == 1:
-                turnLeft(45, 100)
+                screen("R turn left 45 100")
+                turnLeft(45, 140)
             check = True
             break
 
 # Now for some classic line follow code, but where it only sees using the right sensor.
 # If it sees the left edge, then it knows there is an exit, and attempts to take it.
+screen("wall follow mode")
+stop()
+time.sleep(6788)
 while True:
     forward(45)
     while floorCheck("R") == 1:
@@ -262,4 +289,3 @@ while True:
         break
 
 lineFollow()
-
