@@ -38,7 +38,8 @@ oled = SSD1306_I2C(128, 64, i2c)
 # Colour Sensor
 i2c = I2C(0, scl=Pin(20), sda=Pin(16))
 apds9960 = APDS9960LITE(i2c)
-
+apds9960.als.enableSensor()
+apds9960.als.elightGain=3
 
 # Servo Controls
 def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
@@ -158,21 +159,22 @@ def stateMachineTest():
         while floorCheck("L") == 1:
             if floorCheck("R") == 1:
                 if allFloorCheck():
-                    screen("Middle IR = 1")
                     stop()
+                    screen("Middle IR = 1")
                     time.sleep(999)
-                screen("Middle IR = 0")
                 stop()
+                screen("Middle IR = 0")
                 time.sleep(999)
             spin("counter")
+
         while floorCheck("R") == 1:
             if floorCheck("L") == 1:
                 if allFloorCheck():
-                    screen("Middle IR = 1")
                     stop()
+                    screen("Middle IR = 1")
                     time.sleep(999)
-                screen("Middle IR = 0")
                 stop()
+                screen("Middle IR = 0")
                 time.sleep(999)
             spin("clock")
 
