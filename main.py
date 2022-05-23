@@ -36,7 +36,7 @@ i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
 
 # Colour Sensor
-i2c = I2C(0, scl=Pin(20), sda=Pin(16))
+i2c = I2C(0, sda=Pin(16), scl=Pin(17))
 apds9960 = APDS9960LITE(i2c)
 apds9960.als.enableSensor()
 apds9960.als.elightGain=3
@@ -150,10 +150,10 @@ def clearScreen():
     oled.fill(0)
     oled.show()
 def colourOnScreen():
-    oled.text(("Clear: ", str(apds9960.als.ambientLightLevel)),0,0)
-    oled.text(("Red: ", str(apds9960.als.redLightLevel)),0,16)
-    oled.text(("Green: ", str(apds9960.als.greenLightLevel)),0,32)
-    oled.text(("Blue: ", str(apds9960.als.blueLightLevel)),0,48)
+    oled.text(str(apds9960.als.ambientLightLevel),0,0)
+    oled.text(str(apds9960.als.redLightLevel),0,16)
+    oled.text(str(apds9960.als.greenLightLevel),0,32)
+    oled.text(str(apds9960.als.blueLightLevel),0,48)
     oled.show()
     oled.fill(0)
 
@@ -279,7 +279,8 @@ while True:
     colourOnScreen()
 
 #stateMachineTest()
-'''stop()
+'''
+stop()
 screen("alllines")
 time.sleep(500)
 check = False
@@ -322,4 +323,5 @@ while True:
             turnLeft(40,100)
         break
 
-lineFollow()'''
+lineFollow()
+'''
