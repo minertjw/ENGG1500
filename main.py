@@ -126,6 +126,11 @@ def tickLeft():
     return enc.get_left()
 
 # Screen Controls
+def initialise():
+    oled.text("booting up",0,0)
+    oled.show()
+    time.sleep(1.5)
+    oled.fill(0)
 def encOnScreen():
     oled.text(str(enc.get_left()), 10, 0)
     oled.text(str(enc.get_right()), 42, 0)
@@ -269,7 +274,7 @@ def starWars():
 
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
-
+initialise()
 while True:
     colourOnScreen()
 
