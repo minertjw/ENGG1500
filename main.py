@@ -36,10 +36,10 @@ i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
 
 # Colour Sensor
-i2c = I2C(0, sda=Pin(16), scl=Pin(17))
-apds9960 = APDS9960LITE(i2c)
-apds9960.als.enableSensor()
-apds9960.als.elightGain=3
+#i2c = I2C(0, scl=Pin(0), sda=Pin(1))
+#apds9960 = APDS9960LITE(i2c)
+#apds9960.als.enableSensor()
+#apds9960.als.elightGain(3)
 
 # Servo Controls
 def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
@@ -129,7 +129,7 @@ def tickLeft():
 def initialise():
     oled.text("booting up",0,0)
     oled.show()
-    time.sleep(1.5)
+    time.sleep(0.5)
     oled.fill(0)
 def encOnScreen():
     oled.text(str(enc.get_left()), 10, 0)
@@ -149,13 +149,13 @@ def screen(string, x=0, y=0):
 def clearScreen():
     oled.fill(0)
     oled.show()
-def colourOnScreen():
+'''def colourOnScreen():
     oled.text(str(apds9960.als.ambientLightLevel),0,0)
     oled.text(str(apds9960.als.redLightLevel),0,16)
     oled.text(str(apds9960.als.greenLightLevel),0,32)
     oled.text(str(apds9960.als.blueLightLevel),0,48)
     oled.show()
-    oled.fill(0)
+    oled.fill(0)'''
 
 # Locked Operational Code
 def lineFollow():
@@ -165,58 +165,100 @@ def lineFollow():
             spin("counter")
         while floorCheck("R") == 1:
             spin("clock")
-def stateMachineTest():
+def module1():
+    check = False
     while True:
+        if check == True:
+            break
         forward(45)
         while floorCheck("L") == 1:
             if floorCheck("R") == 1:
                 if allFloorCheck():
+                    check = roundabout("left",1)
+                    check = True
+                if check == False:
                     stop()
-                    screen("Middle IR = 1")
+                    screen("That's not a roundabout bud")
                     time.sleep(999)
-                stop()
-                screen("Middle IR = 0")
-                time.sleep(999)
             spin("counter")
 
         while floorCheck("R") == 1:
             if floorCheck("L") == 1:
                 if allFloorCheck():
+                    check = roundabout("left",1)
+                    check = True
+                if check == False:
                     stop()
-                    screen("Middle IR = 1")
+                    screen("That's not a roundabout bud")
                     time.sleep(999)
-                stop()
-                screen("Middle IR = 0")
-                time.sleep(999)
             spin("clock")
+    screen("done")
+    stop()
+    screen("finished execution")
+def roundabout(direction="left", exit=1):
+    screen("roundabout")
+
+    if direction == "left":
+        while floorCheck("L") == 1 or floorCheck("R") == 1:
+            motor_left.duty(0)
+            motor_right.set_forwards()
+            motor_right.duty(50)
+
+        if exit == 2:
+            while True:
+                forward(45)
+                while floorCheck("R") == 1:
+                    spin("clock")
+                if floorCheck("L") == 1:
+                    while floorCheck("L") == 1:
+                        forward(45)
+                        while floorCheck("R") == 1:
+                            spin("clock")
+                    break
+
+        while floorCheck("L") == 0:
+            forward(45)
+            while floorCheck("R") == 1:
+                spin("clock")
+        while floorCheck("L") == 1 or floorCheck("R") == 1:
+            motor_left.duty(0)
+            motor_right.set_forwards()
+            motor_right.duty(50)
+
+    else:
+        while floorCheck("L") == 1 or floorCheck("R") == 1:
+            motor_right.duty(0)
+            motor_left.set_forwards()
+            motor_left.duty(50)
+
+        if exit == 2:
+            while True:
+                forward(45)
+                while floorCheck("L") == 1:
+                    spin("counter")
+                if floorCheck("R") == 1:
+                    while floorCheck("R") == 1:
+                        forward(45)
+                        while floorCheck("L") == 1:
+                            spin("counter")
+                    break
+
+        while floorCheck("R") == 0:
+            forward(45)
+            while floorCheck("L") == 1:
+                spin("counter")
+        while floorCheck("R") == 1 or floorCheck("L") == 1:
+            motor_right.duty(0)
+            motor_left.set_forwards()
+            motor_left.duty(50)
+
 
 
 def steerServo():
     while True:
         encOnScreen()
         setServoAngle(100+enc.get_right()-enc.get_left())
-def distract():
-    while True:
-        forward(45)
-        if floorCheck("L") == 1:
-            forward(45)
-            tickRight()
-            tickLeft()
-            if floorCheck() == 0:
-                backward(45)
-                tickRight()
-                tickLeft()
-                spin("counter")
-                time.sleep()
-        elif floorCheck("R") == 1:
-            forward(45)
-            tickRight()
-            tickLeft()
-            if floorCheck() == 0:
-                backward(45)
-                tickRight()
-                tickLeft()
-                spin("clock")
+
 def deadEnd():
     setServoAngle()
     while True:
@@ -274,11 +316,11 @@ def starWars():
 
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
+
 initialise()
 while True:
-    colourOnScreen()
-
-#stateMachineTest()
+    lineOnScreen()
+#module1()
 '''
 stop()
 screen("alllines")
