@@ -12,6 +12,7 @@ from APDS9960LITE import APDS9960LITE
 line_sensorM = Pin(26, Pin.IN)
 line_sensorL = Pin(27, Pin.IN)
 line_sensorR = Pin(28, Pin.IN)
+line_sensorO = Pin(5, Pin.IN)
 
 # Motors
 motor_left = Motor("left", 8, 9, 6)
@@ -98,6 +99,8 @@ def floorCheck(pick="M"):  # Checks the colour of the floor
         return line_sensorR.value()
     elif pick == "L":
         return line_sensorL.value()
+    elif pick == "O":
+        return line_sensorO.value()
     else:
         return line_sensorM.value()
 def allFloorCheck():
@@ -166,35 +169,103 @@ def lineFollow():
         while floorCheck("R") == 1:
             spin("clock")
 def module1():
-    check = False
-    while True:
-        if check == True:
-            break
-        forward(45)
+    check = True
+    while check == True:
+        forward(40)
         while floorCheck("L") == 1:
             if floorCheck("R") == 1:
                 if allFloorCheck():
-                    check = roundabout("left",1)
-                    check = True
-                if check == False:
-                    stop()
-                    screen("That's not a roundabout bud")
-                    time.sleep(999)
+                    roundabout("left",1)
+                    check = False
             spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    if allFloorCheck():
+                        roundabout("left",1)
+                        check = False
+                spin("clock")
 
-        while floorCheck("R") == 1:
-            if floorCheck("L") == 1:
+def module2():
+    check = True
+    while check == True:
+        forward(40)
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
                 if allFloorCheck():
-                    check = roundabout("left",1)
-                    check = True
-                if check == False:
-                    stop()
-                    screen("That's not a roundabout bud")
-                    time.sleep(999)
-            spin("clock")
-    screen("done")
-    stop()
-    screen("finished execution")
+                    check = False
+            spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    if allFloorCheck():
+                        check = False
+                spin("clock")
+
+def module3():
+    while floorCheck("L") == 1 or floorCheck("R") == 1:
+        motor_right.duty(0)
+        motor_left.set_forwards()
+        motor_left.duty(45)
+    module1()
+
+def module4():
+    check = True
+    while check == True:
+        forward(40)
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
+                if allFloorCheck():
+                    check = False
+            spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    if allFloorCheck():
+                        check = False
+                spin("clock")
+    while floorCheck("L") == 1 or floorCheck("R") == 1:
+        motor_right.duty(0)
+        motor_left.set_forwards()
+        motor_left.duty(45)
+
+def module5():
+    check = True
+    while check == True:
+        forward(40)
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
+                if allFloorCheck():
+                    roundabout("right",1)
+                    check = False
+            spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    if allFloorCheck():
+                        roundabout("right",1)
+                        check = False
+                spin("clock")
+
+def module6():
+    check = True
+    while check == True:
+        forward(40)
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
+                check == False
+            spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    check = False
+                spin("clock")
+
+    while floorCheck("L") == 1:
+        motor_right.duty(0)
+        motor_left.set_forwards()
+        motor_left.duty(45)
+
 def roundabout(direction="left", exit=1):
     screen("roundabout")
 
@@ -202,63 +273,113 @@ def roundabout(direction="left", exit=1):
         while floorCheck("L") == 1 or floorCheck("R") == 1:
             motor_left.duty(0)
             motor_right.set_forwards()
-            motor_right.duty(50)
+            motor_right.duty(45)
 
         if exit == 2:
             while True:
-                forward(45)
+                forward(40)
                 while floorCheck("R") == 1:
                     spin("clock")
                 if floorCheck("L") == 1:
                     while floorCheck("L") == 1:
-                        forward(45)
+                        forward(40)
                         while floorCheck("R") == 1:
                             spin("clock")
                     break
 
         while floorCheck("L") == 0:
-            forward(45)
+            forward(40)
             while floorCheck("R") == 1:
                 spin("clock")
         while floorCheck("L") == 1 or floorCheck("R") == 1:
             motor_left.duty(0)
             motor_right.set_forwards()
-            motor_right.duty(50)
+            motor_right.duty(45)
 
     else:
         while floorCheck("L") == 1 or floorCheck("R") == 1:
             motor_right.duty(0)
             motor_left.set_forwards()
-            motor_left.duty(50)
+            motor_left.duty(45)
 
         if exit == 2:
             while True:
-                forward(45)
+                forward(40)
                 while floorCheck("L") == 1:
                     spin("counter")
                 if floorCheck("R") == 1:
                     while floorCheck("R") == 1:
-                        forward(45)
+                        forward(40)
                         while floorCheck("L") == 1:
                             spin("counter")
                     break
 
         while floorCheck("R") == 0:
-            forward(45)
+            forward(40)
             while floorCheck("L") == 1:
                 spin("counter")
         while floorCheck("R") == 1 or floorCheck("L") == 1:
             motor_right.duty(0)
             motor_left.set_forwards()
-            motor_left.duty(50)
+            motor_left.duty(45)
+def roundaboutPlus(direction="left", exit=1):
+    screen("roundaboutPlus")
 
+    if direction == "left":
+        while floorCheck("L") == 1 or floorCheck("R") == 1:
+            motor_left.duty(0)
+            motor_right.set_forwards()
+            motor_right.duty(45)
 
+        if exit == 2:
+            while True:
+                forward(40)
+                while floorCheck("R") == 1:
+                    spin("clock")
+                if floorCheck("L") == 1:
+                    while floorCheck("L") == 1:
+                        forward(40)
+                        while floorCheck("R") == 1:
+                            spin("clock")
+                    break
+        while floorCheck("O") == 0:
+            print("")
+        while floorCheck("O") == 1:
+            print("")
+        while floorCheck("O") == 0:
+            forward(40)
+            while floorCheck("R") == 1:
+                spin("clock")
+        while floorCheck("O") == 1 or floorCheck("R") == 1:
+            motor_left.duty(0)
+            motor_right.set_forwards()
+            motor_right.duty(45)
+def module7():
+    while floorCheck("L") == 1 or floorCheck("R") == 1:
+        motor_right.duty(0)
+        motor_left.set_forwards()
+        motor_left.duty(45)
 
+    check = True
+    while check == True:
+        forward(40)
+        while floorCheck("L") == 1:
+            if floorCheck("R") == 1:
+                if allFloorCheck():
+                    roundaboutPlus("left", 2)
+                    check = False
+            spin("counter")
+        if check == True:
+            while floorCheck("R") == 1:
+                if floorCheck("L") == 1:
+                    if allFloorCheck():
+                        roundaboutPlus("left", 2)
+                        check = False
+                spin("clock")
 def steerServo():
     while True:
         encOnScreen()
         setServoAngle(100+enc.get_right()-enc.get_left())
-
 def deadEnd():
     setServoAngle()
     while True:
@@ -294,7 +415,6 @@ def wallFollow():
             turnRight(60, ((distRight - distLeft)))
         elif distLeft > distRight:
             turnLeft(60, ((distLeft - distRight)))
-
 # Miscellaneous
 def starWars():
     setServoAngle()
@@ -318,52 +438,27 @@ def starWars():
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
 
 initialise()
-while True:
-    lineOnScreen()
-#module1()
-'''
-stop()
-screen("alllines")
-time.sleep(500)
-check = False
-while True:
-    screen("forward")
-    forward(45)
-    if check:
-        break
-    while floorCheck("L") == 1:
-        screen("spin 10 counter")
-        spin("counter")
-        if floorCheck("R") == 1:
-            while floorCheck("R") == 1:
-                screen("L turn left 45, 100")
-                turnLeft(45, 100)
-            check = True
-            break
-
-    while floorCheck("R") == 1:
-        screen("spin 10 clock")
-        spin("clock")
-        if floorCheck("L") == 1:
-            while floorCheck("R") == 1:
-                screen("R turn left 45 100")
-                turnLeft(45, 140)
-            check = True
-            break
-
-# Now for some classic line follow code, but where it only sees using the right sensor.
-# If it sees the left edge, then it knows there is an exit, and attempts to take it.
-screen("wall follow mode")
-stop()
-time.sleep(6788)
-while True:
-    forward(45)
-    while floorCheck("R") == 1:
-        spin(10, "clock")
-    if floorCheck("L") == 1:
-        while floorCheck("M") == 1:
-            turnLeft(40,100)
-        break
-
+module1()
+screen("module2")
+module2() # Takes risky edge track and stops at first fork
+screen("module23456789")
+motor_right.duty(0)
+motor_left.set_forwards()
+motor_left.duty(45)
+time.sleep(0.5)
+module2()
+screen("module3")
+module3() # Exits out of second roundabout
+module4() # Exits towards second sharp turn
+module5() # Exits third roundabout
+module6()
+module2() # Takes fork before first roundabout again
+module7() # Takes the first roundabout again on the second exit
 lineFollow()
-'''
+
+
+
+
+
+
+
