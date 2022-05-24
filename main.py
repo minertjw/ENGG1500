@@ -36,9 +36,10 @@ i2c = I2C(0, sda=Pin(12), scl=Pin(13))
 oled = SSD1306_I2C(128, 64, i2c)
 
 # Colour Sensor
-i2c = I2C(0, scl=Pin(20), sda=Pin(16))
+i2c = I2C(0, sda=Pin(16), scl=Pin(17))
 apds9960 = APDS9960LITE(i2c)
-
+apds9960.als.enableSensor()
+apds9960.als.elightGain=3
 
 # Servo Controls
 def setServoAngle(angle=100):  # Changes the angle the front mounted servo is pointing. Angle is inverted, (Left is 167, right is 25)
@@ -125,6 +126,11 @@ def tickLeft():
     return enc.get_left()
 
 # Screen Controls
+def initialise():
+    oled.text("booting up",0,0)
+    oled.show()
+    time.sleep(1.5)
+    oled.fill(0)
 def encOnScreen():
     oled.text(str(enc.get_left()), 10, 0)
     oled.text(str(enc.get_right()), 42, 0)
@@ -143,6 +149,13 @@ def screen(string, x=0, y=0):
 def clearScreen():
     oled.fill(0)
     oled.show()
+def colourOnScreen():
+    oled.text((str(apds9960.als.ambientLightLevel)),0,0)
+    oled.text((str(apds9960.als.redLightLevel)),0,16)
+    oled.text((str(apds9960.als.greenLightLevel)),0,32)
+    oled.text((str(apds9960.als.blueLightLevel)),0,48)
+    oled.show()
+    oled.fill(0)
 
 # Locked Operational Code
 def lineFollow():
@@ -158,21 +171,22 @@ def stateMachineTest():
         while floorCheck("L") == 1:
             if floorCheck("R") == 1:
                 if allFloorCheck():
-                    screen("Middle IR = 1")
                     stop()
+                    screen("Middle IR = 1")
                     time.sleep(999)
-                screen("Middle IR = 0")
                 stop()
+                screen("Middle IR = 0")
                 time.sleep(999)
             spin("counter")
+
         while floorCheck("R") == 1:
             if floorCheck("L") == 1:
                 if allFloorCheck():
-                    screen("Middle IR = 1")
                     stop()
+                    screen("Middle IR = 1")
                     time.sleep(999)
-                screen("Middle IR = 0")
                 stop()
+                screen("Middle IR = 0")
                 time.sleep(999)
             spin("clock")
 
@@ -260,8 +274,11 @@ def starWars():
 
 # lineFollow is infinitely looped, roundabout code below will not run unless lineFollow() is removed:
 # Below is modified line follow code that includes a check within both while loops for the presence of a roundabout
+initialise()
+while True:
+    colourOnScreen()
 
-stateMachineTest()
+#stateMachineTest()
 '''stop()
 screen("alllines")
 time.sleep(500)
